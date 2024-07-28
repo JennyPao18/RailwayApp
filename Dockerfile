@@ -1,5 +1,5 @@
 #Utiliza una imagen base con OpenJDK 17 y Maven 3.8.1
-FROM maven:3.8.1-openjdk-17 AS build
+FROM maven:3.8.5-openjdk-17 AS build
 
 #Establece el directorio de trabajo
 WORKDIR /app
@@ -8,7 +8,7 @@ WORKDIR /app
 COPY . .
 
 #Construye tu aplicación con Maven
-RUN mvn clean package -DskipTests
+RUN mvn clean install
 
 #Cambia a una imagen más ligera de OpenJDK 17 para la ejecución
 FROM openjdk:17-jdk-slim
@@ -17,10 +17,11 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 #Copia el archivo JAR de tu aplicación al directorio de trabajo
-COPY --from=build /app/target/*.jar .
+COPY --from=build /app/target/render-0.0.1-SNAPSHOT.jar .
+COPY --from=build /app/src/main/resources/application.properties .
 
 #Exponer el puerto que utilizará la aplicación
 EXPOSE 8080
 
 #Define el comando de inicio de la aplicación
-CMD ["java", "-jar", "*.jar"]
+CMD ["java", "-jar", "<nombre_jar_generado>.jar"]
